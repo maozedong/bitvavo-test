@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  ws-api:
+    build: ./ws-api
+    volumes:
+      - ./data:/var/lib/db
+    environment:
+      - WS_PORT=9033
+      - DB_PATH=/var/lib/db/.sqlite3
+      - LOG_LEVEL=INFO
+      - NODE_ENV=prod
+    ports:
+      - "9033:9033"
+    restart: on-failure
+
+  client:
+    build: ./client
+    environment:
+      - PORT=9034
+    ports:
+      - "9034:9034"
+    restart: on-failure
+
+  worker1:
+    build: ./worker
+    volumes:
+      - ./data:/var/lib/db
+    environment:
+      - DB_PATH=/var/lib/db/.sqlite3
+      - MARKET=BTC-EUR
+    restart: on-failure
+
+#    if need other markets also
+#  worker2:
+#    build: ./worker
+#    volumes:
+#      - ./data:/var/lib/db
+#    environment:
+#      - DB_PATH=/var/lib/db/.sqlite3
+#      - MARKET=ETH-USD
+#    restart: on-failure
+
+#   this service provides rest api interface. Currently not used
+#  api:
+#    build: ./api
+#    volumes:
+#      - ./data:/var/lib/db
+#    environment:
+#      - PORT=9032
+#      - DB_PATH=/var/lib/db/.sqlite3
+#    ports:
+#      - "9032:9032"
+#    restart: on-failure
