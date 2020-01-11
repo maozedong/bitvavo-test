@@ -9,13 +9,12 @@ const {promisify} = require('util');
     const bitvavo = await getBitvavo();
     console.log(`bitvavo SDK ready`);
 
-    let counter = 0;
     await bitvavo.websocket.subscriptionTrades(process.env.MARKET, async (res) => {
         try {
             if(res.event !== 'trade') return;
 
             await handleTrade(res, db);
-            console.log(`${counter++} written`)
+            console.log(`trade written`)
         } catch (e) {
             console.error(e);
         }
