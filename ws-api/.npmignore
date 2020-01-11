@@ -1,0 +1,7 @@
+/npm-debug.log
+/.idea/
+/raw-src
+/upload
+/build
+/node_modules/
+.DS_Store

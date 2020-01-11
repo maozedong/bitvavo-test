@@ -1,0 +1,38 @@
+{
+  "name": "ws-api",
+  "version": "0.1.0",
+  "description": "Web Sockets server",
+  "license": "UNLICENSED",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "dist/index.js",
+    "start:dev": "ts-node src/index.ts",
+    "pretest": "tslint -p ./tsconfig.json 'src/**/*.ts' 'test/**/*.ts' && tsc -p .",
+    "precommit": "npm test",
+    "test": "mocha 'test/**/*.ts'",
+    "build": "npm run clean && tsc -p ./src/tsconfig.json --outDir dist --noEmit false",
+    "clean": "rm -rf ./dist"
+  },
+  "dependencies": {
+    "bunyan": "^1.8.12",
+    "dotenv-safe": "^6.0.0",
+    "lodash": "^4.17.10",
+    "sqlite3": "^4.1.1",
+    "ws": "^5.2.2"
+  },
+  "devDependencies": {
+    "@types/bunyan": "^1.8.4",
+    "@types/lodash": "^4.14.110",
+    "@types/mocha": "^5.2.4",
+    "@types/node": "^10.5.1",
+    "@types/sqlite3": "^3.1.6",
+    "@types/ws": "^5.1.2",
+    "chai": "^4.1.2",
+    "husky": "^0.14.3",
+    "mocha": "^5.2.0",
+    "ts-node": "^8.6.1",
+    "tslint": "^5.10.0",
+    "tslint-config-standard": "^7.1.0",
+    "typescript": "^2.9.2"
+  }
+}

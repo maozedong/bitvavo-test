@@ -13,9 +13,7 @@
 
   const urlParams = new URLSearchParams(window.location.search)
   const market = urlParams.get('market') || 'BTC-EUR'
-  const now = new Date().valueOf()
-  const start = now - (1000 * 60 * 10) // 10 minutes
-  const end = now
+  const start =  urlParams.get('start') || new Date().valueOf() - (1000 * 60 * 10) // 10 minutes
 
   // set the dimensions and margins of the graph
   const margin = { top: 10, right: 30, bottom: 30, left: 60 }
@@ -31,18 +29,23 @@
     attr('transform',
       'translate(' + margin.left + ',' + margin.top + ')')
 
-  //Read the data
-  d3.json(`http://localhost:8888/trade/${market}?start=${start}&end=${end}`).then((resp) => {
-    if (!resp.data.length) {
+  const ws = new WebSocket(`ws://localhost:9033/trades?market=${market}&start=${start}`);
+  ws.onmessage = function(event) {
+    const parsed = JSON.parse(event.data);
+    updateChart(parsed.data)
+  };
+
+  function updateChart(data) {
+    if (!data.length) {
       document.getElementById('chart').style.display = 'none'
       document.getElementById('header').innerText = `No data found for "${market}" market`
       return
     }
     document.getElementById('header').innerText = `Price chart for "${market}" market`
 
-    const data = resp.data.map(i => ({ date: i[0], value: i[1] }))
+    const mapped = data.map(i => ({ date: i[0], value: i[1] }))
     // Add X axis --> it is a date format
-    const x = d3.scaleTime().domain(d3.extent(data, function (d) { return d.date })).range([0, width])
+    const x = d3.scaleTime().domain(d3.extent(mapped, function (d) { return d.date })).range([0, width])
 
     const xAxis = d3.axisBottom(x)
     // .ticks(d3.timeSecond)
@@ -50,19 +53,23 @@
 
     // Add Y axis
     const y = d3.scaleLinear().
-      domain([d3.min(data, function (d) { return +d.value }), d3.max(data, function (d) { return +d.value })]).
+      domain([d3.min(mapped, function (d) { return +d.value }), d3.max(mapped, function (d) { return +d.value })]).
       range([height, 0])
     svg.append('g').call(d3.axisLeft(y))
 
     // Add the line
     svg.append('path').
-      datum(data).
+      datum(mapped).
       attr('fill', 'none').
       attr('stroke', 'steelblue').
       attr('stroke-width', 1.5).
       attr('d', d3.line().x(function (d) { return x(d.date) }).y(function (d) { return y(d.value) }),
       )
+  }
 
-  })
+  // rest api example
+  // d3.json(`http://localhost:8888/trade/${market}?start=${start}&end=${end}`).then((resp) => {
+  //   updateChart(resp.data)
+  // })
 
 </script>

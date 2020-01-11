@@ -1,0 +1,17 @@
+{
+  "extends": [
+    "tslint-config-standard"
+  ],
+  "rules": {
+    "no-floating-promises": false,
+    "no-debugger": true,
+    "strict-type-predicates": false,
+    "trailing-comma": [
+      true,
+      {
+        "multiline": "always"
+      }
+    ],
+    "await-promise": [true, "Bluebird"]
+  }
+}
