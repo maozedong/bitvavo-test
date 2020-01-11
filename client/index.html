@@ -1,0 +1,68 @@
+<!-- Code from d3-graph-gallery.com -->
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.15.0/d3.min.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<h3 id="header"></h3>
+<div id="chart"></div>
+
+<script>
+
+  const urlParams = new URLSearchParams(window.location.search)
+  const market = urlParams.get('market') || 'BTC-EUR'
+  const now = new Date().valueOf()
+  const start = now - (1000 * 60 * 10) // 10 minutes
+  const end = now
+
+  // set the dimensions and margins of the graph
+  const margin = { top: 10, right: 30, bottom: 30, left: 60 }
+  const width = window.innerWidth - margin.left - margin.right
+  const height = 400 - margin.top - margin.bottom
+
+  // append the svg object to the body of the page
+  const svg = d3.select('#chart').
+    append('svg').
+    attr('width', width + margin.left + margin.right).
+    attr('height', height + margin.top + margin.bottom).
+    append('g').
+    attr('transform',
+      'translate(' + margin.left + ',' + margin.top + ')')
+
+  //Read the data
+  d3.json(`http://localhost:8888/trade/${market}?start=${start}&end=${end}`).then((resp) => {
+    if (!resp.data.length) {
+      document.getElementById('chart').style.display = 'none'
+      document.getElementById('header').innerText = `No data found for "${market}" market`
+      return
+    }
+    document.getElementById('header').innerText = `Price chart for "${market}" market`
+
+    const data = resp.data.map(i => ({ date: i[0], value: i[1] }))
+    // Add X axis --> it is a date format
+    const x = d3.scaleTime().domain(d3.extent(data, function (d) { return d.date })).range([0, width])
+
+    const xAxis = d3.axisBottom(x)
+    // .ticks(d3.timeSecond)
+    svg.append('g').attr('transform', 'translate(0,' + height + ')').call(xAxis)
+
+    // Add Y axis
+    const y = d3.scaleLinear().
+      domain([d3.min(data, function (d) { return +d.value }), d3.max(data, function (d) { return +d.value })]).
+      range([height, 0])
+    svg.append('g').call(d3.axisLeft(y))
+
+    // Add the line
+    svg.append('path').
+      datum(data).
+      attr('fill', 'none').
+      attr('stroke', 'steelblue').
+      attr('stroke-width', 1.5).
+      attr('d', d3.line().x(function (d) { return x(d.date) }).y(function (d) { return y(d.value) }),
+      )
+
+  })
+
+</script>
